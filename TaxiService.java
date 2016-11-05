@@ -40,6 +40,7 @@ public class TaxiService{
                     for(int i=0;i<map.taxiList.size();i++)
                     {
                         taxi = map.taxiList.get(i);
+                        taxi.updatePosition(time);
                         if(taxi.isAvailable(time))
                         {
                             System.out.println(taxi);
@@ -70,6 +71,7 @@ public class TaxiService{
                                 {
                                     numTaxis++;
                                     System.out.print("Path of "+map.getTaxiName(taxi.taxiId)+": ");
+                                    // System.out.println("Taxi Position - "+taxi.position+" - "+map.getVertexName(taxi.position));
                                     Node node = path.nodes[taxi.position];
                                     Integer distance = node.distance;
                                     if(distance < minDist)
