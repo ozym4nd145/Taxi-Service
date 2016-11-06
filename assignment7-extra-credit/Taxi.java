@@ -2,14 +2,16 @@ import java.util.*;
 public class Taxi
 {
     Integer taxiId;
-    Integer position;
     Integer timeStart = 0;
     Integer timeEnd = 0;
-    PathNode[] path;
-    public Taxi(Integer id, Integer pos)
+    Position endPosition;
+    ArrayList<PathNode> path;
+    boolean available=true;
+
+    public Taxi(Integer id, Position pos)
     {
         taxiId = id;
-        position = pos;
+        endPosition = pos;
         path = null;
     }
 
@@ -22,55 +24,81 @@ public class Taxi
     @Override
     public String toString()
     {
-        return Graph.taxiName.get(taxiId)+": "+Graph.vertexName.get(position);
+        return Graph.taxiName.get(taxiId)+": "+getPosition(TaxiService.currentTime);
     }
 
-    public void updatePosition(Integer time)
+    public ArrayList<PathNode> getPath(Integer time)
     {
-        int i=0;
-        if(path == null)
-        {
-            return;
-        }
-        for(i=0;i<path.length;i++)
-        {
-            if(time < path[i].time)
-            {
-                break;
-            }
-            else
-            {
-                position = path[i].position;
-                timeStart = path[i].time;
-            }
-        }
-        PathNode[] newPath = null;
-        if(i<path.length)
-        {
-            newPath = new PathNode[path.length - i];
-            for(int j=0;i<path.length;i++,j++)
-            {
-                newPath[j] = path[i];
-            }
-        }
-        path = newPath;
+        Position
     }
-    public Integer getCurrentPosition(Integer time)
+
+
+    public Position getPosition(Integer time)
     {
-        updatePosition(time);
+        Position position = null;
+        if(time >= timeEnd)
+        {
+            return endPosition;
+        }
+        else
+        {
+            int i=0;
+            for(i=0;i<path.length;i++)
+            {
+                if(time < path.get(i).time)
+                {
+                    break;
+                }
+                else
+                {
+                    position = path.get(i).position;
+                    position.dist = time - path.get(i).time;
+                }
+            }
+            if(position.dist > 0)
+            {
+                position.p2 = path.get(i).position.p2;
+            }
+        }
         return position;
     }
+    public Position getEndPosition(Integer time)
+    {
+        return endPosition;
+    }
+
     public boolean isAvailable(Integer time)
     {
-        return time >= timeEnd;
+        if(time >= timeEnd)
+        {
+            available = true;
+        }
+        return available;
+    }
+}
+
+class Position
+{
+    Integer p1;
+    Integer p2;
+    Integer dist;
+    public Position(Integer p1,Integer p2,Integer dist)
+    {
+        this.p1 = p1;
+        this.p2 = p2;
+        this.dist = dist;
+    }
+    public String toString()
+    {
+        return Graph.vertexName.get(p1)+", "+Graph.vertexName.get(p2)+" - "+dist;
     }
 }
 
 class PathNode
 {
-    Integer position;
+    Position position;
     Integer time;
-    public PathNode(Integer position, Integer time)
+    public PathNode(Position position, Integer time)
     {
         this.position = position;
         this.time = time;

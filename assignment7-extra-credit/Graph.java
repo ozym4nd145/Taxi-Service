@@ -1,19 +1,14 @@
 import java.util.*;
 public class Graph
 {
-    private Integer counterVertex;
-    private Integer counterTaxi;
+    private Integer counterVertex=0;
+    private Integer counterTaxi=0;
     public static HashMap<String, Integer> vertexId = new HashMap<String, Integer>();
     public static HashMap<String, Integer> taxiId = new HashMap<String, Integer>();
     public static HashMap<Integer, String> vertexName = new HashMap<Integer, String>();
     public static HashMap<Integer, String> taxiName = new HashMap<Integer, String>();
     ArrayList<LinkedList<Edge> > adjList = new ArrayList<LinkedList<Edge> >();
     ArrayList<Taxi > taxiList = new ArrayList<Taxi >();
-    public Graph()
-    {
-        counterVertex = 0;
-        counterTaxi = 0;
-    }
 
     public String getVertexName(Integer id)
     {
@@ -64,12 +59,31 @@ public class Graph
         if (posId != null)
         {
             Integer taxiId = getTaxiId(name);
-            taxiList.add(new Taxi(taxiId,posId));
+            taxiList.add(new Taxi(taxiId,new Position(posId,posId,0));
             return true;
         }
         else
         {
             return false;
         }
+    }
+
+    public Integer getDistance(Integer pos1,Integer pos2)
+    {
+        if(pos1 > adjList.size())
+        {
+            return null;
+        }
+        Iterator<Edge> itr = adjList[pos1].iterator();
+        Edge edge = null;
+        while(itr.hasNext())
+        {
+            edge = itr.next();
+            if(edge.end == pos2)
+            {
+                return edge.weight;
+            }
+        }
+        return null;
     }
 }

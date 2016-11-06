@@ -23,6 +23,7 @@ public class TaxiService{
                     dest = input.next();
                     weight = input.nextInt();
                     map.addEdge(src,dest,weight);
+                    System.out.println("\n");
                     break;
 
                 case "taxi":
@@ -31,8 +32,8 @@ public class TaxiService{
                     if(!map.addTaxi(taxiName,taxiPosition))
                     {
                         System.out.println("No Such Position");
-                        System.out.println();
                     }
+                    System.out.println("\n");
                     break;
                 case "printTaxiPosition":
                     time = input.nextInt();
@@ -46,7 +47,8 @@ public class TaxiService{
                             System.out.println(taxi);
                         }
                     }
-                    System.out.println();
+                    System.out.println("\n");
+
                     break;
                 case "customer":
                     src = input.next();
@@ -84,12 +86,12 @@ public class TaxiService{
                                         System.out.print(map.getVertexName(node.vertex)+", ");
                                         node = path.nodes[node.parent];
                                     }
-                                    System.out.println("source. time taken is "+distance+" units");
+                                    System.out.println(src+". time taken is "+distance+" units");
                                 }
                             }
                             if(numTaxis > 0)
                             {
-                                System.out.println("** Chose "+taxiName+" to service the customer request ***");
+                                System.out.println("\n*** Chose "+taxiName+" to service the customer request ***");
                                 taxi = map.taxiList.get(map.taxiId.get(taxiName));
                                 routeTaxi(taxi,srcId,destId,path,time);
                             }
@@ -103,7 +105,7 @@ public class TaxiService{
                     {
                         System.out.println("No Such Source or Destination");
                     }
-                    System.out.println();
+                    System.out.println("\n");
                     break;
             }
 
@@ -134,7 +136,7 @@ public class TaxiService{
         taxi.timeStart = time;
         taxi.timeEnd = time+timePath+pathTime;
 
-        System.out.print("Path of customer: source, ");
+        System.out.print("Path of customer: "+Graph.vertexName.get(srcId)+", ");
         ArrayList<String> pathList = new ArrayList<String>();
         ArrayList<PathNode> taxiPathDestReverse = new ArrayList<PathNode>();
 
@@ -151,7 +153,7 @@ public class TaxiService{
         {
             System.out.print(pathList.get(i)+", ");
         }
-        System.out.println("destination. time taken is "+timePath+" units.");
+        System.out.println(Graph.vertexName.get(destId)+". time taken is "+timePath+" units.");
 
         PathNode[] taxipath = new PathNode[taxiPathDestReverse.size()+taxiPathsrc.size()];
 

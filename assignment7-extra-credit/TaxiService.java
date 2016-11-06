@@ -6,7 +6,7 @@ public class TaxiService{
 	public TaxiService() {
 		// ...
 	}
-
+    public static Integer currentTime = 0;
 	public void performAction(String actionMessage) {
 		System.out.println("action to be performed: " + actionMessage);
         Scanner input = new Scanner(actionMessage);
@@ -36,10 +36,12 @@ public class TaxiService{
                     break;
                 case "printTaxiPosition":
                     time = input.nextInt();
+                    currentTime = time;
                     Integer taxiNum = map.getTaxiId(taxiName);
                     for(int i=0;i<map.taxiList.size();i++)
                     {
                         taxi = map.taxiList.get(i);
+                        taxi.updatePosition(time);
                         if(taxi.isAvailable(time))
                         {
                             System.out.println(taxi);
@@ -48,16 +50,24 @@ public class TaxiService{
                     System.out.println();
                     break;
                 case "customer":
-                    src = input.next();
-                    dest = input.next();
-                    srcId = map.vertexId.get(src);
-                    destId = map.vertexId.get(dest);
+                    src1 = input.next();
+                    src2 = input.next();
+                    srcDist = input.next();
+                    dest1 = input.next();
+                    dest2 = input.next();
+                    destDist = input.next();
+                    Position src = new Position(map.vertexId.get(src1),map.vertexId.get(src2),srcDist);
+                    Position dest = new Position(map.vertexId.get(dest1),map.vertexId.get(dest2),destDist);
+                    time = input.nextInt();
+                    currentTime = time;
 
-                    if (srcId != null && destId != null)
+                    if (src.p1 != null && src.p2 != null && dest.p1 != null && dest.p2 != null)
                     {
-                        time = input.nextInt();
                         minDist = Integer.MAX_VALUE;
-                        ShortestPath path = new ShortestPath(map,srcId);
+                        PathNode minTaxiPath = null;
+
+                        ShortestPath path1 = new ShortestPath(map,src.p1);
+                        ShortestPath path2 = new ShortestPath(map,src.p2);
                         if(map.taxiList.size() > 0)
                         {
                             Integer numTaxis = 0;
@@ -65,31 +75,49 @@ public class TaxiService{
                             for(int i=0;i<map.taxiList.size();i++)
                             {
                                 taxi = map.taxiList.get(i);
+                                numTaxis++;
                                 taxi.updatePosition(time);
+                                System.out.print("Path of "+map.getTaxiName(taxi.taxiId)+": ");
+
+                                PathNode[] taxiPath = null;
+
                                 if(taxi.isAvailable(time))
                                 {
-                                    numTaxis++;
-                                    System.out.print("Path of "+map.getTaxiName(taxi.taxiId)+": ");
-                                    Node node = path.nodes[taxi.position];
-                                    Integer distance = node.distance;
-                                    if(distance < minDist)
-                                    {
-                                        minDist = distance;
-                                        taxiName = map.getTaxiName(taxi.taxiId);
-                                    }
-                                    while(node.parent != null)
-                                    {
-                                        System.out.print(map.getVertexName(node.vertex)+", ");
-                                        node = path.nodes[node.parent];
-                                    }
-                                    System.out.println("source. time taken is "+distance+" units");
+                                    taxiPath = optimalPath(src,taxi.getPosition(),path1,path2,time,true);
                                 }
+                                else
+                                {
+                                    PathNode[] tempPath = optimalPath(src,taxi.getEndPosition(),path1,path2,taxi.timeEnd,true);
+                                    taxiPath = new PathNode[tempPath.length + taxi.path.length];
+                                    for(int i=0;i<taxi.path.length;i++)
+                                    {
+                                        taxiPath[i] = taxi.path[i];
+                                    }
+                                    for(int i=0;i<tempPath.length;i++)
+                                    {
+                                        taxiPath[taxi.path.length+i] = tempPath[i];
+                                    }
+                                }
+
+                                Integer distance = taxiPath[taxiPath.length - 1].time - time;
+                                if(distance < minDist)
+                                {
+                                    minDist = distance;
+                                    taxiName = map.getTaxiName(taxi.taxiId);
+                                    minTaxiPath = taxiPath;
+                                }
+
+                                for(int i=0;i<taxiPath.length-1;i++)
+                                {
+                                    System.out.print(map.getVertexName(taxiPath.position)+", ");
+                                }
+                                System.out.println("source. time taken is "+distance+" units");
                             }
                             if(numTaxis > 0)
                             {
                                 System.out.println("** Chose "+taxiName+" to service the customer request ***");
                                 taxi = map.taxiList.get(map.taxiId.get(taxiName));
-                                routeTaxi(taxi,srcId,destId,path,time);
+                                PathNode[]
                             }
                             else
                             {
@@ -112,6 +140,70 @@ public class TaxiService{
             System.out.println(e.getMessage());
         }
 	}
+
+    private PathNode[] optimalPath(Position src, Position dest, ShortestPath path1, ShortestPath path2, Integer time, boolean isReverse)
+    {
+        Integer time1 = 0,time2 = 0, time3 = 0,time4 = 0;
+        time1 = src.dist+path1.nodes[dest.p1].distance+dest.dist;
+        time2 = src.dist+path1.nodes[dest.p2].distance+dest.length() - dest.dist;
+        time3 = src.length() - src.dist + path2.nodes[dest.p1].distance+dest.dist;
+        time4 = src.length() - src.dist + path2.nodes[dest.p2].distance+dest.length() - dest.dist;
+        PathNode[] path = null;
+        Integer temp1 = (time1 < time2)?time1:time2;
+        Integer temp2 = (time3 < time4)?time3:time4;
+        Integer minTime = (temp1 < temp2)?temp1:temp2;
+
+        Node node = null;
+        if(time1 == minTime)
+        {
+            node = path1.nodes[dest.p1];
+            time += src.dist;
+        }
+        else if(time2 == minTime)
+        {
+            node = path1.nodes[dest.p2];
+            time += src.dist;
+        }
+        else if(time3 == minTime)
+        {
+            node = path2.nodes[dest.p1];
+            time += src.length() - src.dist;
+        }
+        else
+        {
+            node = path2.nodes[dest.p2];
+            time += src.length() - src.dist;
+        }
+        Integer pathTime = node.distance;
+        ArrayList<PathNode> tempPath = new ArrayList<PathNode>;
+
+        if(isReverse)
+        {
+            while(node != null)
+            {
+                tempPath.add(new PathNode(node.vertex,time+pathTime - node.distance));
+                node = path1.nodes[node.parent];
+            }
+            path = new PathNode[tempPath.size()];
+            for(int i=0;i<tempPath.size();i++)
+            {
+                path[i] = tempPath.get(i);
+            }
+        }
+        else
+        {
+            while(node != null)
+            {
+                tempPath.add(new PathNode(node.vertex, time+node.distance));
+            }
+            path = new PathNode[tempPath.size()];
+            for(int i=tempPath.size()-1;i>=0;i--)
+            {
+                path[path.length - i - 1] = tempPath.get(i);
+            }
+        }
+        return path;
+    }
 
     private void routeTaxi(Taxi taxi, Integer srcId, Integer destId,ShortestPath path, Integer time)
     {

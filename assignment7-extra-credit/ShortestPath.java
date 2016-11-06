@@ -10,11 +10,21 @@ public class ShortestPath
         this.source = source;
         dijkstra();
     }
+    //
+    // private void print(TreeSet<Node> ha)
+    // {
+    //     System.out.println("Printing Unvisited Set");
+    //     Iterator<Node> itr = ha.iterator();
+    //     while(itr.hasNext())
+    //     {
+    //         System.out.println("\t"+itr.next());
+    //     }
+    // }
 
     private void dijkstra()
     {
         nodes = new Node[graph.adjList.size()];
-        
+
         for(int i=0;i<graph.adjList.size();i++)
         {
             nodes[i] = new Node(i,null,Integer.MAX_VALUE);
@@ -52,11 +62,20 @@ public class ShortestPath
     }
 }
 
+
+
 class NodeCompare implements Comparator<Node>
 {
     public int compare(Node a, Node b)
     {
-        return a.distance - b.distance;
+        if (a.distance == b.distance)
+        {
+            return a.vertex - b.vertex;
+        }
+        else
+        {
+            return a.distance - b.distance;
+        }
     }
 }
 
@@ -73,5 +92,10 @@ class Node
         this.vertex = vertex;
         this.parent = parent;
         this.distance = distance;
+    }
+
+    public String toString()
+    {
+        return vertex+", "+distance;
     }
 }
