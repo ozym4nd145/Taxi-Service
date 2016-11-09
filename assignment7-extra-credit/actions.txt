@@ -11,13 +11,18 @@ taxi batman lajpatnagar
 taxi superman indiagate
 printTaxiPosition 0
 customer iitmaingate lajpatnagar 0 chanakyapuri indiagate 0 1
+printTaxiPosition 52
 customer chanakyapuri indiagate 0  chanakyapuri AIIMS 19 52
+printTaxiPosition 70
 customer AIIMS lajpatnagar 0 lajpatnagar AIIMS 0 70
 printTaxiPosition 149
 customer indiagate chankyapuri 0 chanakyapuri indiagate 0 150
+printTaxiPosition 150
 customer lajpatnagar indiagate 0 indiagate lajpatnagar 1 150
+printTaxiPosition 150
 customer lajpatnagar iitmaingate 0 iitmaingate lajpatnagar 0 150
 printTaxiPosition 151
+printTaxiPosition 170
 customer indiagate AIIMS 0  AIIMS indiagate 0 170
 printTaxiPosition 171
 printTaxiPosition 400

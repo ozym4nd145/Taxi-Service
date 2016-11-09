@@ -2,16 +2,15 @@ import java.util.*;
 public class Taxi
 {
     Integer taxiId;
-    Integer timeStart = 0;
     Integer timeEnd = 0;
-    ArrayList<PathNode> path;
+    ArrayList<PathNode> path = new ArrayList<PathNode>();
     boolean available=true;
 
-    public Taxi(Integer id, Position pos)
+    public Taxi(Integer id, Integer pos)
     {
         taxiId = id;
-        endPosition = pos;
-        path = null;
+        path.add(new PathNode(pos,0));
+        updatePosition(0);
     }
 
     @Override
@@ -23,47 +22,82 @@ public class Taxi
     @Override
     public String toString()
     {
-        return Graph.taxiName.get(taxiId)+": "+getPosition(TaxiService.currentTime);
+        return Graph.taxiName.get(taxiId)+": "+Graph.vertexName.get(getPosition(TaxiService.currentTime));
     }
 
-    public ArrayList<PathNode> getPath(Integer time)
+    public void updatePosition(Integer time)
     {
-        Position
+        return;
     }
 
-
-    public Position getPosition(Integer time)
+    public ArrayList<PathNode> getPath(ShortestPath pathShort,Integer time)
     {
-        Position position = null;
-        if(time >= timeEnd)
+        Integer position = getPosition(time);
+        ArrayList<PathNode> pathList = new ArrayList<PathNode>();
+        if(isAvailable(time))
         {
-            return endPosition;
+            Node node = pathShort.nodes[position];
+            while(node != null)
+            {
+                pathList.add(new PathNode(node.vertex,time));
+                time += 1;
+                if(node.parent == null)
+                {
+                    break;
+                }
+                node = pathShort.nodes[node.parent];
+            }
+            // System.out.println("getPath - \n"+pathList);
+            return pathList;
         }
         else
         {
             int i=0;
-            for(i=0;i<path.length;i++)
+            for(i=0;i<path.size();i++)
             {
-                if(time < path.get(i).time)
+                if(time == path.get(i).time)
                 {
                     break;
                 }
-                else
-                {
-                    position = path.get(i).position;
-                    position.dist = time - path.get(i).time;
-                }
             }
-            if(position.dist > 0)
+            for(int j=i;j<path.size();j++)
             {
-                position.p2 = path.get(i).position.p2;
+                pathList.add(new PathNode(path.get(i).position,time));
+                time += 1;
+            }
+            Node node = pathShort.nodes[path.get(path.size()-1).position];
+            while(node != null)
+            {
+                pathList.add(new PathNode(node.vertex, time));
+                time += 1;
+                if(node.parent == null)
+                {
+                    break;
+                }
+                node = pathShort.nodes[node.parent];
+            }
+            return pathList;
+        }
+    }
+
+    public Integer getPosition(Integer time)
+    {
+        if(time >= timeEnd)
+        {
+            updatePosition(time);
+            return path.get(path.size()-1).position;
+        }
+
+        int i=0;
+        for(i=0;i<path.size();i++)
+        {
+            if(time == path.get(i).time)
+            {
+                return path.get(i).position;
             }
         }
-        return position;
-    }
-    public Position getEndPosition(Integer time)
-    {
-        return endPosition;
+
+        return null;
     }
 
     public boolean isAvailable(Integer time)
@@ -74,52 +108,80 @@ public class Taxi
         }
         return available;
     }
+
+
+    public void route(Integer dest, ShortestPath pathShort, Integer time)
+    {
+        ArrayList<PathNode> taxi_src = getPath(pathShort,time);
+        Integer timeReachSrc = taxi_src.get(taxi_src.size()-1).time;
+        ArrayList<PathNode> src_dest = new ArrayList<PathNode>();
+        Node node = pathShort.nodes[dest];
+        Integer timeTaken = timeReachSrc+ node.distance;
+        while(node.parent != null)
+        {
+            src_dest.add(new PathNode(node.vertex,timeReachSrc+node.distance));
+            node = pathShort.nodes[node.parent];
+        }
+        Collections.reverse(src_dest);
+        ArrayList<PathNode> taxi_path_new = new ArrayList<PathNode>();
+        taxi_path_new.addAll(taxi_src);
+        taxi_path_new.addAll(src_dest);
+        timeEnd = timeTaken;
+        path = taxi_path_new;
+        available = false;
+    }
 }
 
-class Position
-{
-    Integer p1;
-    Integer p2;
-    Integer dist;
-    public Position(Integer p1,Integer p2,Integer dist)
-    {
-        this.p1 = p1;
-        this.p2 = p2;
-        this.dist = dist;
-    }
-    public String toString()
-    {
-        return Graph.vertexName.get(p1)+", "+Graph.vertexName.get(p2)+" - "+dist;
-    }
-
-    @Override
-    public boolean equals(Object obj)
-    {
-        Position p = (Position)obj;
-        Integer distance = Graph.getDistance(p1,p2);
-        if((this.p1 == p.p1 && this.p2 == p.p2) && (this.dist == p.dist))
-        {
-            return true;
-        }
-        else if((this.p1 == p.p2 && this.p2 == p.p1)&&(this.dist == (distance - p.dist)))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-}
+// class Position
+// {
+//     Integer p1;
+//     Integer p2;
+//     Integer dist;
+//     public Position(Integer p1,Integer p2,Integer dist)
+//     {
+//         this.p1 = p1;
+//         this.p2 = p2;
+//         this.dist = dist;
+//     }
+//     public String toString()
+//     {
+//         return Graph.vertexName.get(p1)+", "+Graph.vertexName.get(p2)+" - "+dist;
+//     }
+//
+//     @Override
+//     public boolean equals(Object obj)
+//     {
+//         Position p = (Position)obj;
+//         Integer distance = Graph.getDistance(p1,p2);
+//         if((this.p1 == p.p1 && this.p2 == p.p2) && (this.dist == p.dist))
+//         {
+//             return true;
+//         }
+//         else if((this.p1 == p.p2 && this.p2 == p.p1)&&(this.dist == (distance - p.dist)))
+//         {
+//             return true;
+//         }
+//         else
+//         {
+//             return false;
+//         }
+//     }
+// }
 
 class PathNode
 {
-    Position position;
+    Integer position;
     Integer time;
-    public PathNode(Position position, Integer time)
+    public PathNode(Integer position, Integer time)
     {
         this.position = position;
         this.time = time;
+    }
+
+    @Override
+    public String toString()
+    {
+        return Graph.vertexName.get(position)+" - "+time+"s";
     }
 
 }
