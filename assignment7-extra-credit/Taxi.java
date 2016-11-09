@@ -4,7 +4,6 @@ public class Taxi
     Integer taxiId;
     Integer timeStart = 0;
     Integer timeEnd = 0;
-    Position endPosition;
     ArrayList<PathNode> path;
     boolean available=true;
 
@@ -92,6 +91,25 @@ class Position
     {
         return Graph.vertexName.get(p1)+", "+Graph.vertexName.get(p2)+" - "+dist;
     }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        Position p = (Position)obj;
+        Integer distance = Graph.getDistance(p1,p2);
+        if((this.p1 == p.p1 && this.p2 == p.p2) && (this.dist == p.dist))
+        {
+            return true;
+        }
+        else if((this.p1 == p.p2 && this.p2 == p.p1)&&(this.dist == (distance - p.dist)))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 }
 
 class PathNode
@@ -103,4 +121,5 @@ class PathNode
         this.position = position;
         this.time = time;
     }
+
 }

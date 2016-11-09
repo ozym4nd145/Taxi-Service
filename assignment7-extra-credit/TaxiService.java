@@ -141,14 +141,14 @@ public class TaxiService{
         }
 	}
 
-    private PathNode[] optimalPath(Position src, Position dest, ShortestPath path1, ShortestPath path2, Integer time, boolean isReverse)
+    private ArrayList<PathNode> optimalPath(Position src, Position dest, ShortestPath path1, ShortestPath path2, Integer time, boolean isReverse)
     {
         Integer time1 = 0,time2 = 0, time3 = 0,time4 = 0;
         time1 = src.dist+path1.nodes[dest.p1].distance+dest.dist;
         time2 = src.dist+path1.nodes[dest.p2].distance+dest.length() - dest.dist;
         time3 = src.length() - src.dist + path2.nodes[dest.p1].distance+dest.dist;
         time4 = src.length() - src.dist + path2.nodes[dest.p2].distance+dest.length() - dest.dist;
-        PathNode[] path = null;
+        ArrayList<PathNode> path = null;
         Integer temp1 = (time1 < time2)?time1:time2;
         Integer temp2 = (time3 < time4)?time3:time4;
         Integer minTime = (temp1 < temp2)?temp1:temp2;
@@ -157,7 +157,37 @@ public class TaxiService{
         if(time1 == minTime)
         {
             node = path1.nodes[dest.p1];
-            time += src.dist;
+            if(isReverse)
+            {
+                if(dest.dist != 0)
+                {
+                    tempPath.add(new PathNode(dest,time));
+                    for(int i=1;i<dest.distance;i++)
+                    {
+                        tempPath.add(new PathNode(new Position(dest.p1,dest.p2,dest.distance-i),time+i));
+                    }
+                    time+=dest.distance;
+                }
+                while(node != null)
+                {
+                    Position v = Graph.getVertex(node.vertex);
+                    tempPath.add(new PathNode(v,time));
+                    for(int i=1;i<v.distance;i++)
+                    {
+                        tempPath.add(new PathNode(new Position(v.p1,v.p2,i),time+i));
+                    }
+                    time += v.distance;
+                    node = path1.nodes[node.parent];
+                }
+            }
+            else
+            {
+                while(node != null)
+                {
+                    tempPath.add(new PathNode(node.vertex, time+node.distance));
+                }
+                Collection.reverse(tempPath);
+            }
         }
         else if(time2 == minTime)
         {
@@ -179,15 +209,14 @@ public class TaxiService{
 
         if(isReverse)
         {
+            if(dest.dist != 0)
+            {
+
+            }
             while(node != null)
             {
-                tempPath.add(new PathNode(node.vertex,time+pathTime - node.distance));
+                tempPath.add(new PathNode(Graph.getVertex(node.vertex),time+pathTime - node.distance));
                 node = path1.nodes[node.parent];
-            }
-            path = new PathNode[tempPath.size()];
-            for(int i=0;i<tempPath.size();i++)
-            {
-                path[i] = tempPath.get(i);
             }
         }
         else
@@ -196,13 +225,9 @@ public class TaxiService{
             {
                 tempPath.add(new PathNode(node.vertex, time+node.distance));
             }
-            path = new PathNode[tempPath.size()];
-            for(int i=tempPath.size()-1;i>=0;i--)
-            {
-                path[path.length - i - 1] = tempPath.get(i);
-            }
+            Collection.reverse(tempPath);
         }
-        return path;
+        return tempPath;
     }
 
     private void routeTaxi(Taxi taxi, Integer srcId, Integer destId,ShortestPath path, Integer time)
