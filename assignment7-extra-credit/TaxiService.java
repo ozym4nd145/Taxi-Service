@@ -48,7 +48,7 @@ public class TaxiService{
                         }
                         else
                         {
-                            System.out.println("<busy> : "+taxi);
+                            System.out.println("<busy> "+taxi);
                         }
                     }
                     System.out.println();
@@ -162,9 +162,11 @@ public class TaxiService{
 
     public void printRoute(ArrayList<String> path)
     {
-        for(String place: path)
+        int size = path.size();
+        for(int i=0;i<size;i++)
         {
-            if(Graph.originalVertices.contains(place))
+            String place = path.get(i);
+            if(Graph.originalVertices.contains(place)|| i == 0 || i==(size-1))
             {
                 System.out.print(place+", ");
             }
@@ -173,9 +175,11 @@ public class TaxiService{
 
     public void printRoutePath(ArrayList<PathNode> path)
     {
-        for(PathNode place: path)
+        int size = path.size();
+        for(int i=0;i<size;i++)
         {
-            if(Graph.originalVerticesSet.contains(place.position))
+            PathNode place = path.get(i);
+            if(Graph.originalVerticesSet.contains(place.position)|| i == 0 || i==(size-1))
             {
                 System.out.print(Graph.vertexName.get(place.position)+", ");
             }

@@ -30,12 +30,12 @@ public class Taxi
         if(time >= timeEnd && map.mainVertices.size() > 1)
         {
             Collections.sort(Graph.mainVertices);
-
+            available = true;
             while(timeEnd < time)
             {
                 path = getNewPath(path.get(path.size()-1),timeEnd,map);
                 String name = Graph.vertexName.get(path.get(path.size() - 1).position);
-                System.out.println("At time "+timeEnd+", "+Graph.taxiName.get(taxiId)+" chose a new destination vertex "+name+"\n");
+                System.out.println("\t\t--- At time "+timeEnd+", "+Graph.taxiName.get(taxiId)+" chose a new destination vertex "+name+" ----\n");
                 timeEnd = path.get(path.size()-1).time;
             }
         }
