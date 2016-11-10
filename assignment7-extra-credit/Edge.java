@@ -15,7 +15,7 @@ public class Edge
     public boolean equals(Object obj)
     {
         Edge other = (Edge) obj;
-        return ((this.start==other.start)&&(this.end==other.end))||((this.end==other.start)&&(this.start==other.end));
+        return ((this.start.equals(other.start))&&(this.end.equals(other.end)))||((this.end.equals(other.start))&&(this.start.equals(other.end)));
     }
 
     @Override

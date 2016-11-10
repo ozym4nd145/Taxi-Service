@@ -41,10 +41,14 @@ public class TaxiService{
                     for(int i=0;i<map.taxiList.size();i++)
                     {
                         taxi = map.taxiList.get(i);
-                        taxi.updatePosition(time);
+                        taxi.updatePosition(time,map);
                         if(taxi.isAvailable(time))
                         {
                             System.out.println(taxi);
+                        }
+                        else
+                        {
+                            System.out.println("<busy> : "+taxi);
                         }
                     }
                     System.out.println();
@@ -93,12 +97,20 @@ public class TaxiService{
                 for(int i=0;i<map.taxiList.size();i++)
                 {
                     Taxi taxi = map.taxiList.get(i);
-                    taxi.updatePosition(time);
+                    taxi.updatePosition(time,map);
 
                     numTaxis++;
-                    System.out.print("Path of "+map.getTaxiName(taxi.taxiId)+": ");
+                    if(taxi.isAvailable(time))
+                    {
+                        System.out.print("Path of "+map.getTaxiName(taxi.taxiId)+": ");
+                    }
+                    else
+                    {
+                        System.out.print("Path of "+map.getTaxiName(taxi.taxiId)+" <busy> : ");
+                    }
                     // System.out.println("Taxi Position - "+taxi.position+" - "+map.getVertexName(taxi.position));
-
+                    // printRoutePath(taxi.path);
+                    // System.out.println("\n-- "+taxi.isAvailable(time)+" --");
                     ArrayList<PathNode> taxi_route= taxi.getPath(path,time);
                     Integer time_end = taxi_route.get(taxi_route.size()-1).time;
                     if(time_end < minDist)
@@ -115,6 +127,9 @@ public class TaxiService{
                     System.out.println("\n*** Chose "+taxiName+" to service the customer request ***");
                     Taxi taxi = map.taxiList.get(map.taxiId.get(taxiName));
                     taxi.route(dest,path,time);
+                    // System.out.println("TAXI - ");
+                    // printRoutePath(taxi.path);
+                    // System.out.println("------");
                     System.out.print("Path of customer: ");
                     Node node = path.nodes[dest];
                     Integer timePath = node.distance;
@@ -164,6 +179,8 @@ public class TaxiService{
             {
                 System.out.print(Graph.vertexName.get(place.position)+", ");
             }
+
+            // System.out.print(Graph.vertexName.get(place.position)+" ("+place.time+")"+", ");
         }
     }
 

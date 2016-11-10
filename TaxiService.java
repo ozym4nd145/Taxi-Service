@@ -27,6 +27,7 @@ public class TaxiService{
                     break;
 
                 case "taxi":
+                    // map.printGraph();
                     taxiName = input.next();
                     taxiPosition = input.next();
                     if(!map.addTaxi(taxiName,taxiPosition))
@@ -35,6 +36,7 @@ public class TaxiService{
                     }
                     System.out.println("\n");
                     break;
+
                 case "printTaxiPosition":
                     time = input.nextInt();
                     Integer taxiNum = map.getTaxiId(taxiName);
@@ -48,8 +50,8 @@ public class TaxiService{
                         }
                     }
                     System.out.println("\n");
-
                     break;
+
                 case "customer":
                     src = input.next();
                     dest = input.next();

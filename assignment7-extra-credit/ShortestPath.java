@@ -68,7 +68,7 @@ class NodeCompare implements Comparator<Node>
 {
     public int compare(Node a, Node b)
     {
-        if (a.distance == b.distance)
+        if (a.distance.equals(b.distance))
         {
             return a.vertex - b.vertex;
         }

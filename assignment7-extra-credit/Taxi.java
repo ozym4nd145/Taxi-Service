@@ -6,17 +6,17 @@ public class Taxi
     ArrayList<PathNode> path = new ArrayList<PathNode>();
     boolean available=true;
 
-    public Taxi(Integer id, Integer pos)
+    public Taxi(Integer id, Integer pos, Graph map)
     {
         taxiId = id;
         path.add(new PathNode(pos,0));
-        updatePosition(0);
+        updatePosition(0,map);
     }
 
     @Override
     public boolean equals(Object obj)
     {
-        return this.taxiId == ((Taxi)obj).taxiId;
+        return this.taxiId.equals(((Taxi)obj).taxiId);
     }
 
     @Override
@@ -25,9 +25,53 @@ public class Taxi
         return Graph.taxiName.get(taxiId)+": "+Graph.vertexName.get(getPosition(TaxiService.currentTime));
     }
 
-    public void updatePosition(Integer time)
+    public void updatePosition(Integer time, Graph map)
     {
-        return;
+        if(time >= timeEnd && map.mainVertices.size() > 1)
+        {
+            Collections.sort(Graph.mainVertices);
+
+            while(timeEnd < time)
+            {
+                path = getNewPath(path.get(path.size()-1),timeEnd,map);
+                String name = Graph.vertexName.get(path.get(path.size() - 1).position);
+                System.out.println("At time "+timeEnd+", "+Graph.taxiName.get(taxiId)+" chose a new destination vertex "+name+"\n");
+                timeEnd = path.get(path.size()-1).time;
+            }
+        }
+        else
+        {
+            return;
+        }
+
+    }
+
+
+    private ArrayList<PathNode> getNewPath(PathNode start, Integer time, Graph map)
+    {
+        // System.out.print("hahah");
+        Integer id = map.getNearestVertex(start.position);
+        // System.out.print(id);
+        id++;
+        if(id.equals(Graph.mainVertices.size()))
+        {
+            id = 0;
+        }
+        ArrayList<PathNode> newPath = new ArrayList<PathNode>();
+        Integer destId = Graph.vertexId.get(Graph.mainVertices.get(id));
+        ShortestPath path = new ShortestPath(map,start.position);
+        Node node = path.nodes[destId];
+        Integer timePath = node.distance+time;
+
+        while(node.parent != null)
+        {
+            newPath.add(new PathNode(node.vertex, timePath));
+            timePath--;
+            node = path.nodes[node.parent];
+        }
+        newPath.add(new PathNode(start.position, time));
+        Collections.reverse(newPath);
+        return newPath;
     }
 
     public ArrayList<PathNode> getPath(ShortestPath pathShort,Integer time)
@@ -52,23 +96,28 @@ public class Taxi
         }
         else
         {
+            // System.out.println("Time - "+time);
             int i=0;
             for(i=0;i<path.size();i++)
             {
-                if(time == path.get(i).time)
+                if(time.equals(path.get(i).time))
                 {
                     break;
                 }
             }
+            // System.out.println("i - "+i+"; size - "+path.size());
             for(int j=i;j<path.size();j++)
             {
-                pathList.add(new PathNode(path.get(i).position,time));
+                pathList.add(new PathNode(path.get(j).position,time));
+                // System.out.println(Graph.vertexName.get(path.get(j).position)+"("+time+")");
                 time += 1;
             }
             Node node = pathShort.nodes[path.get(path.size()-1).position];
+            node = pathShort.nodes[node.parent];
             while(node != null)
             {
                 pathList.add(new PathNode(node.vertex, time));
+                // System.out.println(Graph.vertexName.get(node.vertex)+"("+time+")");
                 time += 1;
                 if(node.parent == null)
                 {
@@ -84,14 +133,14 @@ public class Taxi
     {
         if(time >= timeEnd)
         {
-            updatePosition(time);
             return path.get(path.size()-1).position;
         }
-
+        // System.out.println("Time - "+time);
         int i=0;
         for(i=0;i<path.size();i++)
         {
-            if(time == path.get(i).time)
+            // System.out.println("\t"+path.get(i).time+" "+time+" "+(time==path.get(i).time)+" "+(time.equals(path.get(i).time)));
+            if(time.equals(path.get(i).time))
             {
                 return path.get(i).position;
             }

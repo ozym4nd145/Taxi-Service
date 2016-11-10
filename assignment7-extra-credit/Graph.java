@@ -7,10 +7,11 @@ public class Graph
     public static HashMap<String, Integer> taxiId = new HashMap<String, Integer>();
     public static HashMap<Integer, String> vertexName = new HashMap<Integer, String>();
     public static HashMap<Integer, String> taxiName = new HashMap<Integer, String>();
-
+    public static HashMap<String ,Integer> distance = new HashMap<String, Integer>();
     ArrayList<LinkedList<Edge> > adjList = new ArrayList<LinkedList<Edge> >();
     public static Set<Integer> originalVerticesSet = new HashSet<Integer>();
     public static Set<String> originalVertices = new HashSet<String>();
+    public static ArrayList<String> mainVertices = new ArrayList<String>();
     ArrayList<Taxi > taxiList = new ArrayList<Taxi >();
 
     public void printGraph()
@@ -28,6 +29,46 @@ public class Graph
         }
         System.out.println();
         System.out.println();
+    }
+
+    public Integer getNearestVertex(Integer pos)
+    {
+        String name = vertexName.get(pos);
+        // System.out.println(name);
+        if(name == null)
+        {
+            return null;
+        }
+        if(originalVerticesSet.contains(pos))
+        {
+            return mainVertices.indexOf(vertexName.get(pos));
+        }
+        String[] names = name.split(" ");
+        Integer pos1 = vertexId.get(names[0]);
+        Integer pos2 = vertexId.get(names[1]);
+        Integer dist1 = Integer.parseInt(names[2]);
+        Integer dista = distance.get(names[0]+" "+names[1]);
+        Integer dist2 = dista - dist1;
+        // System.out.println(dist1+" "+dist2);
+        if(distance == null)
+        {
+            throw new Error("Incorrect Input");
+        }
+        Integer id1 = mainVertices.indexOf(names[0]);
+        Integer id2 = mainVertices.indexOf(names[1]);
+        // System.out.println(id1 +" , "+id2);
+        if(dist1 == dist2)
+        {
+            return (id1<id2)?id1:id2;
+        }
+        else if(dist1 < dist2)
+        {
+            return id1;
+        }
+        else
+        {
+            return id2;
+        }
     }
 
 
@@ -67,6 +108,7 @@ public class Graph
             adjList.add(new LinkedList<Edge>());
             originalVerticesSet.add(id);
             originalVertices.add(pos);
+            mainVertices.add(pos);
             counterVertex++;
         }
         return id;
@@ -89,7 +131,7 @@ public class Graph
         }
         else
         {
-            if(dist == 0)
+            if(dist.equals(0))
             {
                 return v1;
             }
@@ -116,6 +158,15 @@ public class Graph
 
     public void addEdge(String pos1, String pos2, Integer weight)
     {
+        String edge1 = pos1+" "+pos2;
+        String edge2 = pos2+" "+pos1;
+        if(distance.containsKey(edge1) || distance.containsKey(edge2))
+        {
+            throw new Error("Edge already Inserted");
+        }
+        distance.put(edge1,weight);
+        distance.put(edge2,weight);
+
         Integer prevCount = counterVertex;
         Integer prev = getVertexId(pos1);
         for(int i=1;i<weight ;i++)
@@ -138,7 +189,7 @@ public class Graph
         if (posId != null)
         {
             Integer taxiId = getTaxiId(name);
-            taxiList.add(new Taxi(taxiId,posId));
+            taxiList.add(new Taxi(taxiId,posId,this));
             return true;
         }
         else

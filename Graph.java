@@ -15,6 +15,23 @@ public class Graph
         counterTaxi = 0;
     }
 
+    public void printGraph()
+    {
+        int i=0;
+        for (LinkedList<Edge> edge: adjList)
+        {
+            System.out.print((i)+" -> ");
+            for(Edge ed: edge)
+            {
+                System.out.print((ed.end+","+ed.weight)+" | ");
+            }
+            System.out.print("\n");
+            i++;
+        }
+        System.out.println();
+        System.out.println();
+    }
+
     public String getVertexName(Integer id)
     {
         return vertexName.get(id);
