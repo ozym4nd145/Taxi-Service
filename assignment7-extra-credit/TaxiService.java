@@ -168,7 +168,14 @@ public class TaxiService{
             String place = path.get(i);
             if(Graph.originalVertices.contains(place)|| i == 0 || i==(size-1))
             {
-                System.out.print(place+", ");
+                if(i== size - 1)
+                {
+                    System.out.print(place);
+                }
+                else
+                {
+                    System.out.print(place+", ");
+                }
             }
         }
     }
@@ -181,7 +188,14 @@ public class TaxiService{
             PathNode place = path.get(i);
             if(Graph.originalVerticesSet.contains(place.position)|| i == 0 || i==(size-1))
             {
-                System.out.print(Graph.vertexName.get(place.position)+", ");
+                if(i==size-1)
+                {
+                    System.out.print(Graph.vertexName.get(place.position));
+                }
+                else
+                {
+                    System.out.print(Graph.vertexName.get(place.position)+", ");
+                }
             }
 
             // System.out.print(Graph.vertexName.get(place.position)+" ("+place.time+")"+", ");
